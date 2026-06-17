@@ -1,0 +1,31 @@
+name: SugarShape Daily Report
+
+on:
+  schedule:
+    # 06:00 UTC = 08:00 Uhr Berlin Zeit im Sommer (CEST, UTC+2)
+    # In der Winterzeit (CET, UTC+1) entspricht dies 07:00 Uhr Berlin Zeit
+    - cron: "0 6 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+
+      - name: Python einrichten
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Abhängigkeiten installieren
+        run: pip install requests
+
+      - name: SugarShape Check ausführen
+        env:
+          EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_RECIPIENT: ${{ secrets.EMAIL_RECIPIENT }}
+          SCRAPERAPI_KEY: ${{ secrets.SCRAPERAPI_KEY }}
+        run: python check_sugarshape.py
